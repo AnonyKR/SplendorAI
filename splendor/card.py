@@ -13,3 +13,6 @@ class Noble:
 
     def __init__(self, white, blue, green,red,brown):
         self.cost = [white,blue,green,red,brown]
+    
+    def get_cost(self):
+        return self.cost

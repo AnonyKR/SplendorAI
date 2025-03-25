@@ -9,6 +9,7 @@ class GameStatus:
 
     def __init__(self, *args):
         #check number of players and tokens used
+        #token is in white, blue, green, red, brown, gold order
         if len(args) > 0:
             self.players = args[0]
             match (len(self.players)):
@@ -28,7 +29,7 @@ class GameStatus:
         preset = open(file_path, "r")
         presetSave = preset.readlines()
         preset.close()
-        cardList = []
+        cardList = [] 
         for x in presetSave:
             cardList.append(x.strip())
         cardObjects = []
@@ -62,7 +63,7 @@ class GameStatus:
         nobleList = []
         for x in presetSave:
             nobleList.append(x.strip())
-        noblesObjects = []
+        noblesObjects : list[Noble] = []
         for x in nobleList:
             noblesObjects.append(Noble(int(x[0]), int(x[1]), int(x[2]), int(x[3]), int(x[4])))
         random.shuffle(noblesObjects)
@@ -70,3 +71,17 @@ class GameStatus:
         for x in range(0, len(self.players) + 1):
             self.noble_used.append(noblesObjects.pop())
         
+    def get_cards(self):
+        return self.opens
+    
+    def get_decks(self):
+        return self.cards
+    
+    def get_tokens(self):
+        return self.tokens
+    
+    def get_nobles(self) -> list[Noble]:
+        return self.noble_used
+    
+    def get_players(self):
+        return self.players
