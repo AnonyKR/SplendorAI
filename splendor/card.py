@@ -8,6 +8,15 @@ class Card:
     
     def get_level(self):
         return self.level
+    
+    def get_token(self):
+        return self.token
+
+    def get_point(self):
+        return self.point
+
+    def get_cost(self):
+        return self.cost
 
 class Noble:
 

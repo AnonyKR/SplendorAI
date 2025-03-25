@@ -25,4 +25,4 @@ class Game:
         print() #placeholder
 
     def show_display(self):
-        self.display.show_nobles()
+        self.display.show_all()
