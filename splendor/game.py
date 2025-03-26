@@ -22,7 +22,12 @@ class Game:
         self.display = Display(self.game_status)
     
     def play(self):
-        print() #placeholder
+        while True:
+            for turn in self.game_status.get_players:
+                pass #do the turn
+            if self.game_status.is_over():
+                break
+
 
     def show_display(self):
         self.display.show_all()

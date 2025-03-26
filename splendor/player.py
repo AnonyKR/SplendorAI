@@ -1,4 +1,5 @@
 from .game_status import GameStatus
+from .card import Card
 
 class Player:
     MAX_TOKEN = 10
@@ -23,8 +24,15 @@ class Player:
     def get_tokens(self):
         return self.tokens
     
+    def add_tokens(self, tokens):
+        for x in range(0,6):
+            self.tokens[x] += tokens[x]
+    
     def get_hold(self):
         return self.hold
+    
+    def add_hold(self, card : Card):
+        self.hold.append(card)
     
     def get_card_tokens(self):
         return self.card_tokens

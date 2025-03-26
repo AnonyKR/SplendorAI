@@ -1,5 +1,6 @@
 from .exception import *
 from .card import *
+from .player import Player
 
 import os
 import random
@@ -85,3 +86,21 @@ class GameStatus:
     
     def get_players(self):
         return self.players
+    
+    def is_over(self):
+        for x in self.players:
+            if x.get_points() >= 15:
+                return True
+        return False
+    
+    def take_hold(self, turn, card_choice):
+        if len(self.players[turn].get_hold()) >= Player.MAX_HOLD:
+            raise GameException()
+        if card_choice % 5 == 0:
+            self.players[turn].add_hold(self.cards[card_choice / 5].pop())
+        else:
+            self.players[turn].add_hold(self.opens[card_choice / 5].pop(card_choice % 5 - 1))
+            self.opens[card_choice / 5].append(card_choice % 5 - 1, self.cards[card_choice / 5].pop())
+        if self.tokens[5] >= 1:
+            self.players[turn].add_tokens([0,0,0,0,0,1]) #check if it has it
+            self.tokens[5] -= 1
