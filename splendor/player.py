@@ -3,7 +3,7 @@ from .card import Card
 
 class Player:
     MAX_TOKEN = 10
-    MAX_HOLD = 3
+    MAX_HOLD = GameStatus.MAX_HOLD
 
     def __init__(self):
         self.game_status = None

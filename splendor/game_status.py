@@ -1,12 +1,12 @@
 from .exception import *
 from .card import *
-from .player import Player
 
 import os
 import random
 
 class GameStatus:
     GAME_WIN_POINT = 15
+    MAX_HOLD = 3
 
     def __init__(self, *args):
         #check number of players and tokens used
@@ -94,7 +94,7 @@ class GameStatus:
         return False
     
     def take_hold(self, turn, card_choice):
-        if len(self.players[turn].get_hold()) >= Player.MAX_HOLD:
+        if len(self.players[turn].get_hold()) >= GameStatus.MAX_HOLD:
             raise GameException()
         if card_choice % 5 == 0:
             self.players[turn].add_hold(self.cards[card_choice / 5].pop())
@@ -104,3 +104,52 @@ class GameStatus:
         if self.tokens[5] >= 1:
             self.players[turn].add_tokens([0,0,0,0,0,1]) #check if it has it
             self.tokens[5] -= 1
+
+    def take_token(self, token_list, hold=False):
+        if hold is True:
+            if self.tokens[5] >= 1:
+                self.tokens[5] -= 1
+                return [0,0,0,0,0,1]
+            else:
+                return [0,0,0,0,0,0]
+        if self.tokens[5] != 0:
+            raise GameException()
+        two_count = 0
+        two_loc = 0
+        one_count = 0
+        zero_count = 0
+        for x in range(0,5):
+            if token_list[x] == 1:
+                one_count += 1
+            elif token_list[x] == 2:
+                two_count += 1
+                two_loc = x
+            elif token_list[x] == 0:
+                zero_count += 1
+            else:
+                raise GameException()
+        if two_count == 1 and zero_count == 4:
+            if not self.tokens[two_loc] >= 4:
+                raise GameException()
+            return self.token_subtract(token_list)
+        if two_count != 0:
+            raise GameException()
+        empty_pile = 0
+        for x in range(0,5):
+            if self.tokens[x] == 0:
+                empty_pile += 1
+        if (empty_pile >= 3 and one_count == 5 - empty_pile) or (empty_pile <= 2 and one_count == 3):
+            return self.token_subtract(token_list)
+        raise GameException()
+    
+    def token_subtract(self, token_list):
+        for x in range(0,6):
+            self.tokens[x] -= token_list[x]
+        return token_list
+    
+    def token_add(self, token_list):
+        for x in range(0,6):
+            self.tokens[x] += token_list[x]
+
+    def buy_card(self, card, turn):
+        
