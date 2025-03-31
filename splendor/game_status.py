@@ -4,6 +4,24 @@ from .card import *
 import os
 import random
 
+def cost_vs_payment_valid(cost_list, payment_list):
+    for x in payment_list:
+        if x < 0:
+            raise GameException()
+    if sum(cost_list) != sum(payment_list):
+        return False
+    if payment_list[5] == 0:
+        return payment_list[:5] == cost_list
+    if payment_list[5] < 0:
+        return False
+    for x in range(0,5):
+        if payment_list[x] < 0:
+            return False
+        if payment_list[x] > cost_list[x]:
+            return False
+    return True
+    
+
 class GameStatus:
     GAME_WIN_POINT = 15
     MAX_HOLD = 3
@@ -151,5 +169,40 @@ class GameStatus:
         for x in range(0,6):
             self.tokens[x] += token_list[x]
 
-    def buy_card(self, card, turn):
-        
+    def buy_card(self, card : Card, turn, payment_list):
+        #card is card Object
+        #payment only counts actual token, not permenet ones.
+        if not self.players[x].subtract_poss(payment_list):
+            raise GameException()
+        total_pay = [0,0,0,0,0,0]
+        for x in range(0,6):
+            total_pay[x] += payment_list[x]
+        card_token = self.players[turn].get_card_tokens()
+        for x in range(0,5):
+            total_pay[x] += card_token[x]
+        if not cost_vs_payment_valid(card.get_cost(), total_pay):
+            raise GameException()
+        self.players[turn].subtract_tokens(payment_list)
+        self.players[turn].add_card(card)
+        self.token_add(payment_list)
+
+    def check_noble(self, turn):
+        choices = []
+        cards_owned = self.players[turn].get_card_tokens()
+        for x in self.noble_used:
+            cost = x.get_cost()
+            add = True
+            for y in range(0,5):
+                if cost[y] >cards_owned[y]:
+                    add = False
+                    break
+            if add:
+                choices.append(x)
+        return choices
+
+    def take_noble(self, noble):
+        for x in range(0,len(self.noble_used)):
+            if noble is self.noble_used[x]:
+                return self.noble_used.pop(x)
+        raise GameException()
+            
