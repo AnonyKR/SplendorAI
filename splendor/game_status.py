@@ -10,7 +10,7 @@ def cost_vs_payment_valid(cost_list, payment_list):
             raise GameException()
     if sum(cost_list) != sum(payment_list):
         return False
-    if payment_list[5] == 0:
+    if len(payment_list) == 5 or payment_list[5] == 0:
         return payment_list[:5] == cost_list
     if payment_list[5] < 0:
         return False
@@ -112,6 +112,8 @@ class GameStatus:
         return False
     
     def take_hold(self, turn, card_choice):
+        if card_choice > 14 or card_choice < 0:
+            raise GameException()
         if len(self.players[turn].get_hold()) >= GameStatus.MAX_HOLD:
             raise GameException()
         if card_choice % 5 == 0:

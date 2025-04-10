@@ -1,7 +1,8 @@
-from .game_status import GameStatus
+from .game_status import *
 from .exception import *
 from .card import Card
 from abc import abstractmethod
+from typing import List
 
 def show_nobles(noble_list):
     index_to_letter = ["W", "S", "G", "R", "B"]
@@ -36,7 +37,7 @@ class Player:
         self.order = 0
         self.game_status = None
         self.name = "Default"
-        self.hold = []
+        self.hold : List[Card] = []
         self.tokens = [0,0,0,0,0,0]
         self.points = 0
         self.nobles = []
@@ -61,7 +62,7 @@ class Player:
             self.tokens[x] += tokens[x]
 
     def subtract_tokens(self, tokens):
-        for x in range(0,6):
+        for x in range(0,len(tokens)):
             if self.tokens[x] < tokens[x]:
                 raise GameException()
             self.tokens[x] -= tokens[x]
@@ -110,13 +111,59 @@ class HumanPlayer(Player):
             except:
                 print("Invalid input")
         while True:
-            match (answer): #do this section
-                case 1:
-                    break #work
-                case 2:
-                    break #work
-                case 3:
-                    break #work
+            try:
+                match (answer): #do this section
+                    case 1:
+                        inVal = [0,0,0,0,0]
+                        toPrint = ["white", "blue", "green", "red", "brown"]
+                        for x in range(0,5):
+                            inVal[x] = int(input("How many " + toPrint[x] + " tokens do you want? : "))
+                        self.add_tokens(self.game_status.take_token(inVal))
+                        break
+                    case 2:
+                        answer = int(input("Which card do you want to add to your hold? (0-14 from top-left to right-bottom) : "))
+                        self.game_status.take_hold(self.turn, answer)
+                        break
+                    case 3:
+                        buy_hold = False
+                        inVal = [0,0,0,0,0]
+                        toPrint = ["white", "blue", "green", "red", "brown"]
+                        for x in range(0,5):
+                            inVal[x] = int(input("How many " + toPrint[x] + " tokens do you want to pay? : "))
+                        if len(self.hold) > 0:
+                            temp = input("Do you want to buy a card from hold? (y/n) : ")
+                            if temp == "y":
+                                buy_hold = True
+                            elif temp == "n":
+                                buy_hold = False
+                            else:
+                                raise GameException()
+                            #fix using buy card method from game status
+                            if buy_hold:
+                                max = len(self.hold)
+                            else:
+                                max = 12
+                            choice = int(input("Which one do you want to buy? (0 - " + str(max - 1) + ")"))
+                            if choice >= max or choice < 0:
+                                raise GameException()
+                            inVal = [0,0,0,0,0,0]
+                            toPrint = ["white", "blue", "green", "red", "brown", "joker"]
+                            for x in range(0,6):
+                                inVal[x] = int(input("How many " + toPrint[x] + " tokens do you want to pay? : "))
+                            self.add_tokens(self.game_status.take_token(inVal))
+                            if buy_hold:
+                                if cost_vs_payment_valid(self.hold[choice].get_cost(), inVal):
+                                    pass
+                                else:
+                                    raise GameException()
+                            else:
+                                if cost_vs_payment_valid(self.game_status.get_cards[choice].get_cost(), inVal):
+                                    pass
+                                else:
+                                    raise GameException()
+                        break #work
+            except:
+                print("Invalid answer")
         noble_poss = self.game_status.check_noble()
         if len(noble_poss) == 0:
             print("Your turn ends here")
