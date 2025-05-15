@@ -1,8 +1,28 @@
 from .game_status import *
 from .exception import *
 from .card import Card
-from abc import abstractmethod
+from abc import *
 from typing import List
+
+def count_zeros(list_in):
+    count = 0
+    for x in list_in:
+        if isinstance(x, (int, float)):
+            if x == 0:
+                count += 1
+    return count
+
+def nth_value(list_in, occurence): #find n-th non 0 value of the list (assume list containes ints & have that value)
+    if occurence <= 0:
+        return (-1,-1)
+    c = 0
+    for x in range(0,len(list_in)):
+        if list_in[x] != 0:
+            c += 1
+            if c == occurence:
+                return (x, list_in[x])
+    return (-1,-1)
+
 
 def show_nobles(noble_list):
     index_to_letter = ["W", "S", "G", "R", "B"]
@@ -58,7 +78,7 @@ class Player:
         return self.tokens
     
     def add_tokens(self, tokens):
-        for x in range(0,6):
+        for x in range(0,len(tokens)):
             self.tokens[x] += tokens[x]
 
     def subtract_tokens(self, tokens):
@@ -118,6 +138,7 @@ class HumanPlayer(Player):
                         toPrint = ["white", "blue", "green", "red", "brown"]
                         for x in range(0,5):
                             inVal[x] = int(input("How many " + toPrint[x] + " tokens do you want? : "))
+                        print(inVal)
                         self.add_tokens(self.game_status.take_token(inVal))
                         break
                     case 2:

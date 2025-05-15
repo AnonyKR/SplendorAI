@@ -1,5 +1,5 @@
 from .exception import *
-from .player import Player
+from .player import *
 from .game_status import GameStatus
 from .display import Display
 
@@ -16,6 +16,9 @@ class Game:
             if not isinstance(player, Player):
                 raise GameException()
         self.game_status = GameStatus(self.players)
+        for player in self.players:
+            player.update_game_status(self.game_status)
+        
             
     def set_display(self):
         self.show = True
@@ -23,8 +26,11 @@ class Game:
     
     def play(self):
         while True:
-            for turn in self.game_status.get_players:
-                pass #do the turn
+            for turn in self.game_status.get_players():
+                if self.show:
+                    self.display.show_all() 
+                turn.turn()
+                input()
             if self.game_status.is_over():
                 break
 

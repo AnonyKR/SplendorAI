@@ -126,6 +126,7 @@ class GameStatus:
             self.tokens[5] -= 1
 
     def take_token(self, token_list, hold=False):
+        print("Check 0")
         if hold is True:
             if self.tokens[5] >= 1:
                 self.tokens[5] -= 1
@@ -138,6 +139,7 @@ class GameStatus:
         two_loc = 0
         one_count = 0
         zero_count = 0
+        print("Check 1")
         for x in range(0,5):
             if token_list[x] == 1:
                 one_count += 1
@@ -148,8 +150,9 @@ class GameStatus:
                 zero_count += 1
             else:
                 raise GameException()
+        print("Check 2")
         if two_count == 1 and zero_count == 4:
-            if not self.tokens[two_loc] >= 4:
+            if not (self.tokens[two_loc] >= 4):
                 raise GameException()
             return self.token_subtract(token_list)
         if two_count != 0:
