@@ -133,7 +133,7 @@ class GameStatus:
                 return [0,0,0,0,0,1]
             else:
                 return [0,0,0,0,0,0]
-        if self.tokens[5] != 0:
+        if self.tokens[5] != 0: #could have length of 5
             raise GameException()
         two_count = 0
         two_loc = 0
