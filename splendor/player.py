@@ -184,7 +184,7 @@ class HumanPlayer(Player):
                     break #work
             except:
                 print("Invalid answer")
-        noble_poss = self.game_status.check_noble()
+        noble_poss = self.game_status.check_noble(self)
         if len(noble_poss) == 0:
             print("Your turn ends here")
         else:

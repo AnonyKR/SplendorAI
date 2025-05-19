@@ -126,20 +126,18 @@ class GameStatus:
             self.tokens[5] -= 1
 
     def take_token(self, token_list, hold=False):
-        print("Check 0")
         if hold is True:
             if self.tokens[5] >= 1:
                 self.tokens[5] -= 1
                 return [0,0,0,0,0,1]
             else:
                 return [0,0,0,0,0,0]
-        if self.tokens[5] != 0: #could have length of 5
+        if len(token_list) != 5 and token_list[5] != 0: #could have length of 5
             raise GameException()
         two_count = 0
         two_loc = 0
         one_count = 0
         zero_count = 0
-        print("Check 1")
         for x in range(0,5):
             if token_list[x] == 1:
                 one_count += 1
@@ -150,7 +148,6 @@ class GameStatus:
                 zero_count += 1
             else:
                 raise GameException()
-        print("Check 2")
         if two_count == 1 and zero_count == 4:
             if not (self.tokens[two_loc] >= 4):
                 raise GameException()
@@ -166,7 +163,7 @@ class GameStatus:
         raise GameException()
     
     def token_subtract(self, token_list):
-        for x in range(0,6):
+        for x in range(0,len(token_list)):
             self.tokens[x] -= token_list[x]
         return token_list
     
@@ -193,7 +190,7 @@ class GameStatus:
 
     def check_noble(self, turn):
         choices = []
-        cards_owned = self.players[turn].get_card_tokens()
+        cards_owned = turn.get_card_tokens()
         for x in self.noble_used:
             cost = x.get_cost()
             add = True
