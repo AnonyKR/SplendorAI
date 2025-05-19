@@ -31,15 +31,14 @@ class GameStatus:
         #token is in white, blue, green, red, brown, gold order
         if len(args) > 0:
             self.players = args[0]
-            match (len(self.players)):
-                case 2:
-                    self.tokens = [4,4,4,4,4,5]
-                case 3:
-                    self.tokens = [5,5,5,5,5,5]
-                case 4:
-                    self.tokens = [7,7,7,7,7,5]
-                case _:
-                    raise GameException
+            if len(self.players) == 2:
+                self.tokens = [4,4,4,4,4,5]
+            elif len(self.players) == 3:
+                self.tokens = [5,5,5,5,5,5]
+            elif len(self.players) == 4:
+                self.tokens = [7,7,7,7,7,5]
+            else:
+                raise GameException
         else:
             raise GameException
         #set up cards to be used
