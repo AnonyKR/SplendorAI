@@ -132,57 +132,56 @@ class HumanPlayer(Player):
                 print("Invalid input")
         while True:
             try:
-                match (answer): #do this section
-                    case 1:
-                        inVal = [0,0,0,0,0]
-                        toPrint = ["white", "blue", "green", "red", "brown"]
-                        for x in range(0,5):
-                            inVal[x] = int(input("How many " + toPrint[x] + " tokens do you want? : "))
-                        print(inVal)
-                        self.add_tokens(self.game_status.take_token(inVal))
-                        break
-                    case 2:
-                        answer = int(input("Which card do you want to add to your hold? (0-14 from top-left to right-bottom) : "))
-                        self.game_status.take_hold(self.turn, answer)
-                        break
-                    case 3:
-                        buy_hold = False
-                        inVal = [0,0,0,0,0]
-                        toPrint = ["white", "blue", "green", "red", "brown"]
-                        for x in range(0,5):
+                if answer == 1:
+                    inVal = [0,0,0,0,0]
+                    toPrint = ["white", "blue", "green", "red", "brown"]
+                    for x in range(0,5):
+                        inVal[x] = int(input("How many " + toPrint[x] + " tokens do you want? : "))
+                    print(inVal)
+                    self.add_tokens(self.game_status.take_token(inVal))
+                    break
+                elif answer == 2:
+                    answer = int(input("Which card do you want to add to your hold? (0-14 from top-left to right-bottom) : "))
+                    self.game_status.take_hold(self.turn, answer)
+                    break
+                elif answer == 3:
+                    buy_hold = False
+                    inVal = [0,0,0,0,0]
+                    toPrint = ["white", "blue", "green", "red", "brown"]
+                    for x in range(0,5):
+                        inVal[x] = int(input("How many " + toPrint[x] + " tokens do you want to pay? : "))
+                    if len(self.hold) > 0:
+                        temp = input("Do you want to buy a card from hold? (y/n) : ")
+                        if temp == "y":
+                            buy_hold = True
+                        elif temp == "n":
+                            buy_hold = False
+                        else:
+                            raise GameException()
+                        #fix using buy card method from game status
+                        if buy_hold:
+                            max = len(self.hold)
+                        else:
+                            max = 12
+                        choice = int(input("Which one do you want to buy? (0 - " + str(max - 1) + ")"))
+                        if choice >= max or choice < 0:
+                            raise GameException()
+                        inVal = [0,0,0,0,0,0]
+                        toPrint = ["white", "blue", "green", "red", "brown", "joker"]
+                        for x in range(0,6):
                             inVal[x] = int(input("How many " + toPrint[x] + " tokens do you want to pay? : "))
-                        if len(self.hold) > 0:
-                            temp = input("Do you want to buy a card from hold? (y/n) : ")
-                            if temp == "y":
-                                buy_hold = True
-                            elif temp == "n":
-                                buy_hold = False
+                        self.add_tokens(self.game_status.take_token(inVal))
+                        if buy_hold:
+                            if cost_vs_payment_valid(self.hold[choice].get_cost(), inVal):
+                                pass
                             else:
                                 raise GameException()
-                            #fix using buy card method from game status
-                            if buy_hold:
-                                max = len(self.hold)
+                        else:
+                            if cost_vs_payment_valid(self.game_status.get_cards[choice].get_cost(), inVal):
+                                pass
                             else:
-                                max = 12
-                            choice = int(input("Which one do you want to buy? (0 - " + str(max - 1) + ")"))
-                            if choice >= max or choice < 0:
                                 raise GameException()
-                            inVal = [0,0,0,0,0,0]
-                            toPrint = ["white", "blue", "green", "red", "brown", "joker"]
-                            for x in range(0,6):
-                                inVal[x] = int(input("How many " + toPrint[x] + " tokens do you want to pay? : "))
-                            self.add_tokens(self.game_status.take_token(inVal))
-                            if buy_hold:
-                                if cost_vs_payment_valid(self.hold[choice].get_cost(), inVal):
-                                    pass
-                                else:
-                                    raise GameException()
-                            else:
-                                if cost_vs_payment_valid(self.game_status.get_cards[choice].get_cost(), inVal):
-                                    pass
-                                else:
-                                    raise GameException()
-                        break #work
+                    break #work
             except:
                 print("Invalid answer")
         noble_poss = self.game_status.check_noble()
