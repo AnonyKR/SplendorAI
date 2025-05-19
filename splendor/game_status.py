@@ -114,15 +114,15 @@ class GameStatus:
     def take_hold(self, turn, card_choice):
         if card_choice > 14 or card_choice < 0:
             raise GameException()
-        if len(self.players[turn].get_hold()) >= GameStatus.MAX_HOLD:
+        if len(turn.get_hold()) >= GameStatus.MAX_HOLD:
             raise GameException()
         if card_choice % 5 == 0:
-            self.players[turn].add_hold(self.cards[card_choice / 5].pop())
+            turn.add_hold(self.cards[card_choice // 5].pop())
         else:
-            self.players[turn].add_hold(self.opens[card_choice / 5].pop(card_choice % 5 - 1))
-            self.opens[card_choice / 5].append(card_choice % 5 - 1, self.cards[card_choice / 5].pop())
+            turn.add_hold(self.opens[card_choice // 5].pop(card_choice % 5 - 1))
+            self.opens[card_choice // 5].insert(card_choice % 5 - 1, self.cards[card_choice // 5].pop()) # issue
         if self.tokens[5] >= 1:
-            self.players[turn].add_tokens([0,0,0,0,0,1]) #check if it has it
+            turn.add_tokens([0,0,0,0,0,1]) #check if it has it
             self.tokens[5] -= 1
 
     def take_token(self, token_list, hold=False):

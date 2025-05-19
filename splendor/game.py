@@ -26,10 +26,10 @@ class Game:
     
     def play(self):
         while True:
-            for turn in self.game_status.get_players():
+            for turn_player in self.game_status.get_players():
                 if self.show:
                     self.display.show_all() 
-                turn.turn()
+                turn_player.turn()
                 input()
             if self.game_status.is_over():
                 break

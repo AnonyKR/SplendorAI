@@ -131,7 +131,7 @@ class HumanPlayer(Player):
             except:
                 print("Invalid input")
         while True:
-            try:
+            #try:
                 if answer == 1:
                     inVal = [0,0,0,0,0]
                     toPrint = ["white", "blue", "green", "red", "brown"]
@@ -141,8 +141,8 @@ class HumanPlayer(Player):
                     self.add_tokens(self.game_status.take_token(inVal))
                     break
                 elif answer == 2:
-                    answer = int(input("Which card do you want to add to your hold? (0-14 from top-left to right-bottom) : "))
-                    self.game_status.take_hold(self.turn, answer)
+                    answerIn = int(input("Which card do you want to add to your hold? (0-14 from top-left to right-bottom) : "))
+                    self.game_status.take_hold(self, answerIn)
                     break
                 elif answer == 3:
                     buy_hold = False
@@ -182,8 +182,8 @@ class HumanPlayer(Player):
                             else:
                                 raise GameException()
                     break #work
-            except:
-                print("Invalid answer")
+            #except:
+                #print("Invalid answer")
         noble_poss = self.game_status.check_noble(self)
         if len(noble_poss) == 0:
             print("Your turn ends here")
