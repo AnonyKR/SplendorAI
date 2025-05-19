@@ -57,13 +57,12 @@ class GameStatus:
         self.cards = [[],[],[]] #level 3, level 2, level 1
         for x in cardObjects:
             cardLevel = x.get_level()
-            match (cardLevel):
-                case 1:
-                    self.cards[2].append(x)
-                case 2:
-                    self.cards[1].append(x)
-                case 3:
-                    self.cards[0].append(x)
+            if cardLevel == 1:
+                self.cards[2].append(x)
+            elif cardLevel == 2:
+                self.cards[1].append(x)
+            elif cardLevel == 3:
+                self.cards[0].append(x)
         random.shuffle(self.cards[0])
         random.shuffle(self.cards[1])
         random.shuffle(self.cards[2])
