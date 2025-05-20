@@ -122,6 +122,11 @@ class Display:
             for x in player.get_hold():
                 cost_list.append(x.get_cost())
                 empty_cost.append(count_zeros(x.get_cost()))
+            for x in range(0, len(player.get_hold())):
+                if x != 0:
+                    print("|",end="")
+                print(str(index_to_letter[player.get_hold()[x].get_token()]) + "  " + str(player.get_hold()[x].get_point()), end="")
+            print("")
             for x in range(0,5):
                 for y in range(0, len(cost_list)):
                     if y != 0:
@@ -129,7 +134,7 @@ class Display:
                     to_print = nth_value(cost_list[y], x - empty_cost[y] + 1)
                     print(" ", end="")
                     if to_print[0] == -1:
-                        print("  ", end="")
+                        print("   ", end="")
                     else:
                         print(index_to_letter[to_print[0]] + "-" + str(to_print[1]), end="")
                 print("")
