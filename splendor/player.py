@@ -111,6 +111,37 @@ class Player:
     def add_card(self, card : Card):
         self.cards.append(card)
         self.card_tokens[card.get_token] += 1
+        
+    def buy_hold(self, loc):
+        self.add_card(self.hold.pop(loc))
+        
+    def over_max_token(self):
+        return sum(self.tokens) > Player.MAX_TOKEN
+    
+    def over_max_hold(self):
+        return len(self.hold) >= Player.MAX_HOLD
+        
+    def buy_poss(self, card : Card):
+        jokers_required = 0
+        card_cost = card.get_cost()
+        for x in range(0,5):
+            if card_cost[x] > self.tokens[x] + self.card_tokens[x]:
+                jokers_required += card_cost[x] - (self.tokens[x] + self.card_tokens[x])
+        if jokers_required > self.tokens[5]:
+            return (False, jokers_required)
+        return (True, jokers_required)
+        
+    def pay(self, tokens):
+        self.subtract_tokens(tokens)
+        self.game_status.token_add(tokens)
+        
+    def auto_buy(self, card_loc, is_hold=False, is_open=False):
+        if is_hold == is_open:
+            raise GameException
+        if is_hold:
+            pass
+        elif is_open:
+            pass
 
     @abstractmethod
     def turn(self):
@@ -167,18 +198,18 @@ class HumanPlayer(Player):
                         if choice >= max or choice < 0:
                             raise GameException()
                         inVal = [0,0,0,0,0,0]
-                        toPrint = ["white", "blue", "green", "red", "brown", "joker"]
+                        toPrint = ["white", "sky", "green", "red", "brown", "joker"]
                         for x in range(0,6):
                             inVal[x] = int(input("How many " + toPrint[x] + " tokens do you want to pay? : "))
                         self.add_tokens(self.game_status.take_token(inVal))
                         if buy_hold:
                             if cost_vs_payment_valid(self.hold[choice].get_cost(), inVal):
-                                pass
+                                self.add_card(self.hold[choice].pop())
                             else:
                                 raise GameException()
                         else:
-                            if cost_vs_payment_valid(self.game_status.get_cards[choice].get_cost(), inVal):
-                                pass
+                            if self.game_status.buy_card(self.game_status.get_cards[choice], self.turn, inVal):
+                                self.game_status.take_hold(self, choice, buy= True)
                             else:
                                 raise GameException()
                     break #work

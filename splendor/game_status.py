@@ -44,9 +44,9 @@ class GameStatus:
         #set up cards to be used
         script_dir = os.path.dirname(os.path.abspath(__file__))
         file_path = os.path.join(script_dir, "cardPreset.txt")
-        preset = open(file_path, "r")
-        presetSave = preset.readlines()
-        preset.close()
+        with open(file_path, "r") as preset:
+            presetSave = preset.readlines()
+            preset.close()
         cardList = [] 
         for x in presetSave:
             cardList.append(x.strip())
@@ -74,9 +74,9 @@ class GameStatus:
         #set up noble tiles
         script_dir = os.path.dirname(os.path.abspath(__file__))
         file_path = os.path.join(script_dir, "noble.txt")
-        preset = open(file_path, "r")
-        presetSave = preset.readlines()
-        preset.close()
+        with open(file_path, "r") as preset:
+            presetSave = preset.readlines()
+            preset.close()
         nobleList = []
         for x in presetSave:
             nobleList.append(x.strip())
@@ -108,20 +108,29 @@ class GameStatus:
             if x.get_points() >= 15:
                 return True
         return False
+        
+    def take_open(self, loc): # loc : 0-11
+        temp = self.opens[loc // 4][loc % 4]
+        self.opens[loc // 4][loc % 4] = self.cards[loc // 4].pop()
+        return temp
     
-    def take_hold(self, turn, card_choice):
-        if card_choice > 14 or card_choice < 0:
+    def take_hold(self, turn, card_choice, buy= False):
+        if (card_choice > 14 or card_choice < 0) and not buy:
             raise GameException()
-        if len(turn.get_hold()) >= GameStatus.MAX_HOLD:
+        if len(turn.get_hold()) >= GameStatus.MAX_HOLD and not buy:
             raise GameException()
-        if card_choice % 5 == 0:
-            turn.add_hold(self.cards[card_choice // 5].pop())
+        if not buy:
+            if card_choice % 5 == 0:
+                turn.add_hold(self.cards[card_choice // 5].pop())
+            else:
+                turn.add_hold(self.opens[card_choice // 5].pop(card_choice % 5 - 1))
+                self.opens[card_choice // 5].insert(card_choice % 5 - 1, self.cards[card_choice // 5].pop()) # issue
+            if self.tokens[5] >= 1:
+                turn.add_tokens([0,0,0,0,0,1]) #check if it has it
+                self.tokens[5] -= 1
         else:
-            turn.add_hold(self.opens[card_choice // 5].pop(card_choice % 5 - 1))
-            self.opens[card_choice // 5].insert(card_choice % 5 - 1, self.cards[card_choice // 5].pop()) # issue
-        if self.tokens[5] >= 1:
-            turn.add_tokens([0,0,0,0,0,1]) #check if it has it
-            self.tokens[5] -= 1
+            turn.add_card(self.opens[card_choice // 4].pop(card_choice % 4))
+            self.opens[card_choice // 4].insert(card_choice % 4, self.cards[card_choice // 4].pop())
 
     def take_token(self, token_list, hold=False):
         if hold is True:
@@ -172,8 +181,8 @@ class GameStatus:
     def buy_card(self, card : Card, turn, payment_list):
         #card is card Object
         #payment only counts actual token, not permenet ones.
-        if not self.players[x].subtract_poss(payment_list):
-            raise GameException()
+        if not self.players[turn].subtract_poss(payment_list):
+            return False
         total_pay = [0,0,0,0,0,0]
         for x in range(0,6):
             total_pay[x] += payment_list[x]
@@ -181,10 +190,11 @@ class GameStatus:
         for x in range(0,5):
             total_pay[x] += card_token[x]
         if not cost_vs_payment_valid(card.get_cost(), total_pay):
-            raise GameException()
+            return False
         self.players[turn].subtract_tokens(payment_list)
         self.players[turn].add_card(card)
         self.token_add(payment_list)
+        return True
 
     def check_noble(self, turn):
         choices = []
