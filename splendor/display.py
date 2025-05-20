@@ -127,7 +127,7 @@ class Display:
                     print("|",end="")
                 print(str(index_to_letter[player.get_hold()[x].get_token()]) + "  " + str(player.get_hold()[x].get_point()), end="")
             print("")
-            for x in range(0,5):
+            for x in range(min(empty_cost) - 1, 5):
                 for y in range(0, len(cost_list)):
                     if y != 0:
                         print("|", end="")
