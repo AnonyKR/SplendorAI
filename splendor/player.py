@@ -49,6 +49,20 @@ def show_nobles(noble_list):
                 print(index_to_letter[to_print[0]] + "-" + str(to_print[1]), end="")
         print("")
 
+def list_op(list_one, list_two, add=False, sub=False, min_val=False):
+    if not (add or sub or min_val):
+        return []
+    results = []
+    shorter = min(len(list_one), len(list_two))
+    for x in range(0, shorter):
+        if add:
+            results.append(list_one[x] + list_two[x])
+        elif sub:
+            results.append(list_one[x] - list_two[x])
+        elif min_val:
+            results.append(min(list_one[x], list_two[x]))
+    return results
+    
 class Player:
     MAX_TOKEN = 10
     MAX_HOLD = GameStatus.MAX_HOLD
@@ -88,7 +102,7 @@ class Player:
             self.tokens[x] -= tokens[x]
 
     def subtract_poss(self, tokens):
-        for x in range(0,6):
+        for x in range(0,len(tokens)):
             if self.tokens[x] < tokens[x]:
                 return False
         return True           
@@ -135,19 +149,55 @@ class Player:
         self.subtract_tokens(tokens)
         self.game_status.token_add(tokens)
         
-    def auto_buy(self, card_loc, is_hold=False, is_open=False):
+    def auto_buy(self, card_loc, is_hold=False, is_open=False, manual=False): #card loc for open is 0-11
         if is_hold == is_open:
             raise GameException
         if is_hold:
-            pass
+            to_get = self.hold[card_loc]
+            check = self.buy_poss(to_get)
+            if check[0]:
+                to_pay = list_op(to_get.get_cost(), self.get_card_tokens(), sub=True)
+                if check[1] != 0:
+                    to_pay = list_op(to_pay, self.get_tokens(), min_val=True)
+                    to_pay.append(check[1])
+                if manual:
+                    self.manual_buy()
+                self.pay(to_pay)
+                self.buy_hold(card_loc)
         elif is_open:
-            pass
+            to_get = self.game_status.get_cards()[card_loc // 4][card_loc % 4]
+            check = self.buy_poss(to_get)
+            if check[0]:
+                to_pay = list_op(to_get.get_cost(), self.get_card_tokens(), sub=True)
+                if check[1] != 0:
+                    to_pay = list_op(to_pay, self.get_tokens(), min_val=True)
+                    to_pay.append(check[1])
+                self.pay(to_pay)
+                self.add_card(self.game_status.take_open(card_loc))
+    
+    @abstractmethod
+    def manual_buy(self):
+        pass
 
     @abstractmethod
     def turn(self):
         pass
 
 class HumanPlayer(Player):
+    
+    def ask_int(self, question, low, high): #low and high are inclusive
+        while True:
+            try:
+                temp = int(input(question))
+                if temp >= low and temp <= high:
+                    return temp
+                else:
+                    raise GameException()
+            except:
+                print("Invalid answer")
+    
+    
+    '''
     def turn(self):
         answer = 0
         while True:
@@ -242,3 +292,4 @@ class HumanPlayer(Player):
                         valid = True
                     except:
                         valid = False
+    '''

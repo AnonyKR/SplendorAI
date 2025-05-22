@@ -175,7 +175,7 @@ class GameStatus:
         return token_list
     
     def token_add(self, token_list):
-        for x in range(0,6):
+        for x in range(0,len(token_list)):
             self.tokens[x] += token_list[x]
 
     def buy_card(self, card : Card, turn, payment_list):
