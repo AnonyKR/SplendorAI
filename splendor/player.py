@@ -185,8 +185,12 @@ class Player:
 
 class HumanPlayer(Player):
     
-    def ask_int(self, question, low, high): #low and high are inclusive
+    @staticmethod
+    def ask_int (question, low, high, options=None): #low and high are inclusive
         while True:
+            if options is not None:
+                for x in options:
+                    print(x)
             try:
                 temp = int(input(question))
                 if temp >= low and temp <= high:
@@ -196,6 +200,18 @@ class HumanPlayer(Player):
             except:
                 print("Invalid answer")
     
+    def turn(self):
+        answer = HumanPlayer.ask_int("What would you like to do? : ", 1, 3, options=["1. Get token", "2. Get hold", "3. Buy card"])
+        if answer == 1:
+            request = [0,0,0,0,0]
+            toPrint = ["white", "blue", "green", "red", "brown"]
+            for x in range(0,5):
+                request[x] = HumanPlayer.ask_int(f"How many {toPrint[x]} tokens do you want? : ", 0, 2)
+            #work
+        elif answer == 2:
+            pass #work
+        elif answer == 3:
+            pass #work
     
     '''
     def turn(self):
