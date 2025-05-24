@@ -196,22 +196,96 @@ class HumanPlayer(Player):
                 if temp >= low and temp <= high:
                     return temp
                 else:
-                    raise GameException()
-            except:
-                print("Invalid answer")
+                    raise GameException("Response out of range")
+            except GameException as e:
+                print(f"Invalid answer {e}")
+
+    @staticmethod
+    def ask_str (question, accpetable_response= [], options=None): #low and high are inclusive
+        while True:
+            if options is not None:
+                for x in options:
+                    print(x)
+            try:
+                temp = input(question)
+                if temp.lower() in accpetable_response or len(accpetable_response) == 0:
+                    return temp
+                else:
+                    raise GameException("Not an accpetable response")
+            except GameException as e:
+                print(f"Invalid answer {e}")
     
     def turn(self):
         answer = HumanPlayer.ask_int("What would you like to do? : ", 1, 3, options=["1. Get token", "2. Get hold", "3. Buy card"])
         if answer == 1:
             request = [0,0,0,0,0]
             toPrint = ["white", "blue", "green", "red", "brown"]
-            for x in range(0,5):
-                request[x] = HumanPlayer.ask_int(f"How many {toPrint[x]} tokens do you want? : ", 0, 2)
-            #work
+            while True:
+                for x in range(0,5):
+                    request[x] = HumanPlayer.ask_int(f"How many {toPrint[x]} tokens do you want? : ", 0, 2)
+                try:
+                    self.add_tokens(self.game_status.take_token(request))
+                    break
+                except GameException as e:
+                    print(f"Invalid answer {e}")
         elif answer == 2:
-            pass #work
+            while True:
+                loc = HumanPlayer.ask_int("Which card do you want to add to your hold? (0-14 from top-left to right-bottom) : ", 0, 14)
+                try:
+                    self.game_status.take_hold(self, loc)
+                except GameException as e:
+                    print(f"Invalid answer {e}")
         elif answer == 3:
-            pass #work
+            request = [0,0,0,0,0,0]
+            toPrint = ["white", "blue", "green", "red", "brown", "joker"]
+            while True:
+                want_hold = HumanPlayer.ask_str("Do you want to buy a card from hold? (y/n) : ", ["y", "n"])            
+                for x in range(0,6):
+                    request[x] = HumanPlayer.ask_int(f"How many {toPrint[x]} tokens do you want? : ", 0, 10)
+                if want_hold == "y":
+                    max = len(self.hold)
+                elif want_hold == "n":
+                    max = 12
+                else:
+                    raise GameException("How did this happened?")
+                choice = HumanPlayer.ask_int("Which one do you want to buy? (0 - " + str(max - 1) + ")", 0, max - 1)
+                if want_hold:
+                    if cost_vs_payment_valid(self.hold[choice].get_cost(), request):
+                        self.add_card(self.hold[choice].pop())
+                    else:
+                        raise GameException()
+                else:
+                    if self.game_status.buy_card(self.game_status.get_cards[choice], self.turn, request):
+                        self.game_status.take_hold(self, choice, buy= True)
+                    else:
+                        raise GameException()
+        noble_poss = self.game_status.check_noble(self)
+        if len(noble_poss) == 0:
+            print("Your turn ends here")
+        else:
+            show_nobles(noble_poss)
+            valid = False
+            if len(noble_poss) == 1:
+                while True:
+                    try:
+                        answer = input("Would you like to take the noble? (y/n): ")
+                        if answer == "n": 
+                            break
+                        elif answer == "y":
+                            self.nobles.append(self.game_status.take_noble(noble_poss[0]))
+                            break
+                        else:
+                            raise GameException()
+                    except:
+                        print("Invalid answer")
+            else:
+                while not valid:
+                    try:
+                        answer = input("Which noble do you want? (by index starting 0 left to right): ")
+                        self.nobles.append(self.game_status.take_noble(noble_poss[int(answer)]))
+                        valid = True
+                    except:
+                        valid = False
     
     '''
     def turn(self):

@@ -140,7 +140,7 @@ class GameStatus:
             else:
                 return [0,0,0,0,0,0]
         if len(token_list) != 5 and token_list[5] != 0: #could have length of 5
-            raise GameException()
+            raise GameException("You can't take joker (How did you do this?)")
         two_count = 0
         two_loc = 0
         one_count = 0
