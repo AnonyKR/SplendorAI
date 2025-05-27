@@ -12,8 +12,6 @@ def cost_vs_payment_valid(cost_list, payment_list):
         return False
     if len(payment_list) == 5 or payment_list[5] == 0:
         return payment_list[:5] == cost_list
-    if payment_list[5] < 0:
-        return False
     for x in range(0,5):
         if payment_list[x] < 0:
             return False

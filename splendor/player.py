@@ -73,7 +73,7 @@ class Player:
         self.name = "Default"
         self.hold : List[Card] = []
         self.tokens = [0,0,0,0,0,0]
-        self.points = 0
+        self.points = 10
         self.nobles = []
         self.cards = []
         self.card_tokens = [0,0,0,0,0]
@@ -215,11 +215,33 @@ class HumanPlayer(Player):
             except GameException as e:
                 print(f"Invalid answer {e}")
     
+    def command_ask(self):
+        command_list = ["List of commands:", "take(t) [num x 5]", "hold(h) [loc]", "buy(b) [hold(h)/open(o)] [loc] [num x 5]", "b [h/o] [loc]", "explain (e)"]
+        explain = ["Take : type 5 numbers with space which is white, sky, green, red, brown token respectively", "Hold : take card into hold (0-14)", "Buy : buy card from either open or hold; if numbers are typed, that amount of tokens are used"]
+        hold_or_open = {"h":"h", "o":"o", "hold":"h", "open":"o"}
+        while True:
+            for x in command_list:
+                print(x)
+            answer = input(">> ").lower().split(" ")
+            if answer[0] == "e" or answer[0] == "explain":
+                for x in explain:
+                    print(x)
+            elif (answer[0] == "take" or answer[0] == "t") and len(answer) == 6:
+                try:
+                    for x in range(1,6):
+                        answer[x] = int(answer[x])
+                except:
+                    print("Invalid response")
+                else:
+                    return answer[0],answer[1:]
+            elif (answer[0] == "hold" or answer[0] == "h") and len(answer) == 2:
+                pass
+    
     def turn(self):
         answer = HumanPlayer.ask_int("What would you like to do? : ", 1, 3, options=["1. Get token", "2. Get hold", "3. Buy card"])
         if answer == 1:
             request = [0,0,0,0,0]
-            toPrint = ["white", "blue", "green", "red", "brown"]
+            toPrint = ["white", "sky", "green", "red", "brown"]
             while True:
                 for x in range(0,5):
                     request[x] = HumanPlayer.ask_int(f"How many {toPrint[x]} tokens do you want? : ", 0, 2)
@@ -233,32 +255,36 @@ class HumanPlayer(Player):
                 loc = HumanPlayer.ask_int("Which card do you want to add to your hold? (0-14 from top-left to right-bottom) : ", 0, 14)
                 try:
                     self.game_status.take_hold(self, loc)
+                    break
                 except GameException as e:
                     print(f"Invalid answer {e}")
         elif answer == 3:
             request = [0,0,0,0,0,0]
             toPrint = ["white", "blue", "green", "red", "brown", "joker"]
             while True:
-                want_hold = HumanPlayer.ask_str("Do you want to buy a card from hold? (y/n) : ", ["y", "n"])            
-                for x in range(0,6):
-                    request[x] = HumanPlayer.ask_int(f"How many {toPrint[x]} tokens do you want? : ", 0, 10)
-                if want_hold == "y":
-                    max = len(self.hold)
-                elif want_hold == "n":
-                    max = 12
-                else:
-                    raise GameException("How did this happened?")
-                choice = HumanPlayer.ask_int("Which one do you want to buy? (0 - " + str(max - 1) + ")", 0, max - 1)
-                if want_hold:
-                    if cost_vs_payment_valid(self.hold[choice].get_cost(), request):
-                        self.add_card(self.hold[choice].pop())
+                try:
+                    want_hold = HumanPlayer.ask_str("Do you want to buy a card from hold? (y/n) : ", ["y", "n"])            
+                    for x in range(0,6):
+                        request[x] = HumanPlayer.ask_int(f"How many {toPrint[x]} tokens do you want? : ", 0, 10)
+                    if want_hold == "y":
+                        max = len(self.hold)
+                    elif want_hold == "n":
+                        max = 12
                     else:
-                        raise GameException()
-                else:
-                    if self.game_status.buy_card(self.game_status.get_cards[choice], self.turn, request):
-                        self.game_status.take_hold(self, choice, buy= True)
+                        raise GameException("How did this happened?")
+                    choice = HumanPlayer.ask_int("Which one do you want to buy? (0 - " + str(max - 1) + ")", 0, max - 1)
+                    if want_hold:
+                        if cost_vs_payment_valid(self.hold[choice].get_cost(), list_op(request, self.card_tokens,add=True)):
+                            self.add_card(self.hold[choice].pop())
+                        else:
+                            raise GameException()
                     else:
-                        raise GameException()
+                        if self.game_status.buy_card(self.game_status.get_cards[choice], self.turn, request):
+                            self.game_status.take_hold(self, choice, buy= True)
+                        else:
+                            raise GameException()
+                except GameException as e:
+                    print(f"Something went wrong {e}")
         noble_poss = self.game_status.check_noble(self)
         if len(noble_poss) == 0:
             print("Your turn ends here")
