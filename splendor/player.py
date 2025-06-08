@@ -215,29 +215,60 @@ class HumanPlayer(Player):
             except GameException as e:
                 print(f"Invalid answer {e}")
     
-    def command_ask(self):
-        command_list = ["List of commands:", "take(t) [num x 5]", "hold(h) [loc]", "buy(b) [hold(h)/open(o)] [loc] [num x 5]", "b [h/o] [loc]", "explain (e)"]
+    @staticmethod
+    def castable_to_int(obj):
+        temp = []
+        try:
+            for x in obj:
+                temp.append(int(x))
+            return True, temp
+        except ValueError:
+            return False, None
+    
+    @staticmethod
+    def command_ask():
+        command_list = ["List of commands:", "take(t) [num x 5]", "hold(h) [loc]", "buy(b) [hold(h)/open(o)] [loc] [num x 6]", "b [h/o] [loc]", "explain (e)"]
         explain = ["Take : type 5 numbers with space which is white, sky, green, red, brown token respectively", "Hold : take card into hold (0-14)", "Buy : buy card from either open or hold; if numbers are typed, that amount of tokens are used"]
         hold_or_open = {"h":"h", "o":"o", "hold":"h", "open":"o"}
         while True:
             for x in command_list:
                 print(x)
             answer = input(">> ").lower().split(" ")
+            if len(answer) < 2:
+                continue
+            if (answer[0] == "buy" or answer[0] == "b"):
+                poss, val = HumanPlayer.castable_to_int(answer[2:])
+            else:
+                poss, val = HumanPlayer.castable_to_int(answer[1:])
+            if not poss:
+                continue
             if answer[0] == "e" or answer[0] == "explain":
                 for x in explain:
                     print(x)
             elif (answer[0] == "take" or answer[0] == "t") and len(answer) == 6:
-                try:
-                    for x in range(1,6):
-                        answer[x] = int(answer[x])
-                except:
-                    print("Invalid response")
-                else:
-                    return answer[0],answer[1:]
+                return answer[0][0],val
             elif (answer[0] == "hold" or answer[0] == "h") and len(answer) == 2:
-                pass
+                return answer[0][0],val
+            elif (answer[0] == "buy" or answer[0] == "b") and (len(answer) == 3 or len(answer) == 9):
+                return answer[0][0],val
     
     def turn(self):
+        while True:
+            act,count = HumanPlayer.command_ask()
+            if act == "t":
+                try:
+                    self.add_tokens(self.game_status.take_token(count))
+                    break
+                except GameException as e:
+                    print(f"Invalid answer {e}")
+            if act == "h":
+                try:
+                    self.game_status.take_hold(self, count[0])
+                except GameException as e:
+                    print(f"Invalid answer {e}")
+            if act == "b":
+                pass
+        '''
         answer = HumanPlayer.ask_int("What would you like to do? : ", 1, 3, options=["1. Get token", "2. Get hold", "3. Buy card"])
         if answer == 1:
             request = [0,0,0,0,0]
@@ -285,6 +316,8 @@ class HumanPlayer(Player):
                             raise GameException()
                 except GameException as e:
                     print(f"Something went wrong {e}")
+        '''
+        
         noble_poss = self.game_status.check_noble(self)
         if len(noble_poss) == 0:
             print("Your turn ends here")
