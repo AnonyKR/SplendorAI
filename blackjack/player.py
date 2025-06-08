@@ -55,18 +55,23 @@ class Player:
         self.bet += money
         self.money -= money
     
-    def result(self, win=False):
+    def result(self, win=False, tie=False, display=False):
         if win:
             self.money += self.bet * 2
+        if tie:
+            self.money += self.bet
         self.aces = 0
         self.sum = 0
         self.bet = 0
         temp = self.hand 
         self.hand = []
-        if win:
-            print(f"{self.name} wins!")
-        else:
-            print(f"{self.name} lost!")
+        if display:
+            if win:
+                print(f"{self.name} wins!")
+            elif tie:
+                print("It's a tie!") 
+            else:
+                print(f"{self.name} lost!")
         return temp
         
 class HumanPlayer(Player):
@@ -83,3 +88,29 @@ class HumanPlayer(Player):
                 return False
             else: 
                 pass
+
+class NEATPlayer(Player):
+
+    def __init__(self, sname="HumanPlayer", smoney= 1000, net=None):
+        super().__init__(name=sname, money=smoney)
+        self.net = net
+        self.fitness = 0.0
+
+    def get_fitness(self):
+        return self.fitness
+    
+    def result(self, win=False, tie=False,display=False):
+        if win:
+            self.fitness += 1.0
+        elif tie:
+            self.fitness += 0.1
+        else:
+            self.fitness += 0.0
+        return super().result(win, tie, display)
+    
+    def hit(self):
+        inputs = [self.max_sum()/21.0, self.aces, self.dealer_open[0]]
+        if self.net.activate(inputs)[0] > 0.5:
+            return True
+        else:
+            return False

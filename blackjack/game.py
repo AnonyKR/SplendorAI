@@ -1,4 +1,4 @@
-from .player import *
+from blackjack.player import *
 
 import random
 
@@ -10,8 +10,8 @@ class Blackjack:
         self.display = display
         self.num_deck = deck_num
         self.deck = []
-        for x in range(0,self.num_deck):
-            for y in range(0,4):
+        for _ in range(0,self.num_deck):
+            for _ in range(0,4):
                 for card in range(0,13):
                     self.deck.append(card)
         self.dealer_close = []
@@ -59,6 +59,8 @@ class Blackjack:
             player.add_hand(self.deck.pop(0))
         self.dealer_close.append(self.deck.pop(0))
         self.dealer_open.append(self.deck.pop(0))
+        for player in self.players:
+            player.dealer_info(self.dealer_open)
         self.show()
         for player in self.players:
             while (not player.is_bust()) and player.hit():
@@ -76,4 +78,6 @@ class Blackjack:
         if total != -1:
             total = self.sum_hand()
         for player in self.players:
-            self.discard.extend(player.result(win= (player.max_sum() >= total) ))
+            is_tie = (total == player.max_sum())
+            win = (player.max_sum() >= total)
+            self.discard.extend(player.result(win=win,tie=is_tie, display=self.display))
